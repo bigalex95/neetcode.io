@@ -33,6 +33,8 @@ Space Complexity: [SPACE_COMPLEXITY]
 #include <stack>
 #include <climits>
 #include <cmath>
+#include <chrono>
+#include <iomanip>
 
 using namespace std;
 
@@ -145,11 +147,16 @@ void runPerformanceTests()
 
     // TODO: Add performance test cases here
     // Example:
-    // auto start = chrono::high_resolution_clock::now();
+    // auto startTime = chrono::high_resolution_clock::now();
     // auto result = solution.solve(large_input);
-    // auto end = chrono::high_resolution_clock::now();
-    // auto duration = chrono::duration_cast<chrono::milliseconds>(end - start);
-    // assert(duration.count() < 1000); // Should complete within 1 second
+    // auto endTime = chrono::high_resolution_clock::now();
+    //
+    // auto duration = chrono::duration_cast<chrono::microseconds>(endTime - startTime);
+    // double executionTimeMs = duration.count() / 1000.0; // Convert to milliseconds
+    // double executionTimeSec = executionTimeMs / 1000.0; // Convert to seconds
+    //
+    // cout << "⏱️  Execution time: " << fixed << setprecision(4) << executionTimeSec << " seconds (" << executionTimeMs << " ms)" << endl;
+    // assert(executionTimeMs < 1000.0); // Should be less than 1 second (1000ms)
 
     cout << "✅ Performance tests passed!" << endl;
 }

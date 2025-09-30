@@ -4,8 +4,12 @@ LeetCode #1: https://leetcode.com/problems/two-sum/
 NeetCode: https://neetcode.io/problems/two-integer-sum
 
 Problem:
-Given an array of integers nums and an integer target, return indices of the two numbers such that they add up to target.
-You may assume that each input would have exactly one solution, and you may not use the same element twice.
+Given an array of integers nums and an integer target, return indices of the
+two numbers such that they add up to target.
+
+You may assume that each input would have exactly one solution, and you may
+not use the same element twice.
+
 You can return the answer in any order.
 
 Example 1:
@@ -33,9 +37,17 @@ Space Complexity: O(n)
 
 #include <vector>
 #include <unordered_map>
+#include <unordered_set>
+#include <string>
 #include <iostream>
 #include <cassert>
 #include <algorithm>
+#include <queue>
+#include <stack>
+#include <climits>
+#include <cmath>
+#include <chrono>
+#include <iomanip>
 
 using namespace std;
 
@@ -43,44 +55,66 @@ class Solution
 {
 public:
     /**
-     * Find two numbers in the array that add up to the target.
+     * Find two numbers in the array that add up to target and return their indices.
      *
-     * @param nums: vector of integers
-     * @param target: target sum
-     * @return vector of two indices whose values sum to target
+     * Uses an unordered_map to store numbers we've seen and their indices.
+     * For each number, we check if its complement (target - current number)
+     * exists in our hash map.
+     *
+     * @param nums Vector of integers
+     * @param target Target sum we're looking for
+     * @return Vector containing the indices of the two numbers that add up to target
      */
     vector<int> twoSum(vector<int> &nums, int target)
     {
-        unordered_map<int, int> numMap;
+        // Hash map to store number -> index mapping
+        unordered_map<int, int> numToIndex;
 
-        for (size_t i = 0; i < nums.size(); i++)
+        for (int i = 0; i < nums.size(); i++)
         {
             int complement = target - nums[i];
 
-            if (numMap.find(complement) != numMap.end())
+            // If complement exists in our hash map, we found our answer
+            if (numToIndex.find(complement) != numToIndex.end())
             {
-                return {numMap[complement], static_cast<int>(i)};
+                return {numToIndex[complement], i};
             }
 
-            numMap[nums[i]] = static_cast<int>(i);
+            // Store current number and its index
+            numToIndex[nums[i]] = i;
         }
 
-        return {}; // No solution found
+        // This should never happen according to problem constraints
+        return {};
     }
 };
 
-// Helper function to check if result is valid
-bool isValidResult(vector<int> &nums, int target, vector<int> &result)
+// Helper function to compare vectors (for testing)
+template <typename T>
+bool areEqual(const vector<T> &a, const vector<T> &b)
 {
-    if (result.size() != 2)
+    if (a.size() != b.size())
         return false;
-    if (result[0] == result[1])
-        return false;
-    if (result[0] < 0 || static_cast<size_t>(result[0]) >= nums.size())
-        return false;
-    if (result[1] < 0 || static_cast<size_t>(result[1]) >= nums.size())
-        return false;
-    return nums[result[0]] + nums[result[1]] == target;
+    for (size_t i = 0; i < a.size(); i++)
+    {
+        if (a[i] != b[i])
+            return false;
+    }
+    return true;
+}
+
+// Helper function to print vector
+template <typename T>
+void printVector(const vector<T> &vec)
+{
+    cout << "[";
+    for (size_t i = 0; i < vec.size(); i++)
+    {
+        cout << vec[i];
+        if (i < vec.size() - 1)
+            cout << ", ";
+    }
+    cout << "]";
 }
 
 // Test function
@@ -88,81 +122,97 @@ void runTests()
 {
     Solution solution;
 
-    // Test case 1
+    cout << "Running tests for Two Sum..." << endl;
+
+    // Test case 1: Basic example from LeetCode
     {
         vector<int> nums = {2, 7, 11, 15};
         int target = 9;
-        vector<int> result = solution.twoSum(nums, target);
-        assert(isValidResult(nums, target, result));
-
         vector<int> expected = {0, 1};
-        sort(result.begin(), result.end());
-        sort(expected.begin(), expected.end());
-        assert(result == expected);
+        vector<int> result = solution.twoSum(nums, target);
+        assert(areEqual(result, expected));
         cout << "✅ Test 1 passed" << endl;
     }
 
-    // Test case 2
+    // Test case 2: Different order
     {
         vector<int> nums = {3, 2, 4};
         int target = 6;
-        vector<int> result = solution.twoSum(nums, target);
-        assert(isValidResult(nums, target, result));
-
         vector<int> expected = {1, 2};
-        sort(result.begin(), result.end());
-        sort(expected.begin(), expected.end());
-        assert(result == expected);
+        vector<int> result = solution.twoSum(nums, target);
+        assert(areEqual(result, expected));
         cout << "✅ Test 2 passed" << endl;
     }
 
-    // Test case 3
+    // Test case 3: Duplicate numbers
     {
         vector<int> nums = {3, 3};
         int target = 6;
-        vector<int> result = solution.twoSum(nums, target);
-        assert(isValidResult(nums, target, result));
-
         vector<int> expected = {0, 1};
-        sort(result.begin(), result.end());
-        sort(expected.begin(), expected.end());
-        assert(result == expected);
+        vector<int> result = solution.twoSum(nums, target);
+        assert(areEqual(result, expected));
         cout << "✅ Test 3 passed" << endl;
     }
 
-    // Test case 4: Negative numbers
+    // Edge case 1: Negative numbers
     {
         vector<int> nums = {-1, -2, -3, -4, -5};
         int target = -8;
+        vector<int> expected = {2, 4}; // -3 + (-5) = -8
         vector<int> result = solution.twoSum(nums, target);
-        assert(isValidResult(nums, target, result));
-
-        vector<int> expected = {2, 4}; // -3 + -5 = -8
-        sort(result.begin(), result.end());
-        sort(expected.begin(), expected.end());
-        assert(result == expected);
-        cout << "✅ Test 4 passed" << endl;
+        assert(areEqual(result, expected));
+        cout << "✅ Edge case 1 passed" << endl;
     }
 
-    // Test case 5: Zero target
+    // Edge case 2: Zero target
     {
-        vector<int> nums = {-1, 0, 1, 2};
+        vector<int> nums = {-3, 4, 3, 90};
         int target = 0;
+        vector<int> expected = {0, 2}; // -3 + 3 = 0
         vector<int> result = solution.twoSum(nums, target);
-        assert(isValidResult(nums, target, result));
-
-        vector<int> expected = {0, 2}; // -1 + 1 = 0
-        sort(result.begin(), result.end());
-        sort(expected.begin(), expected.end());
-        assert(result == expected);
-        cout << "✅ Test 5 passed" << endl;
+        assert(areEqual(result, expected));
+        cout << "✅ Edge case 2 passed" << endl;
     }
 
     cout << "🎉 All tests passed!" << endl;
 }
 
+// Performance test function
+void runPerformanceTests()
+{
+    Solution solution;
+
+    cout << "Running performance tests..." << endl;
+
+    // Create a large input where the answer is at the end
+    vector<int> largeNums;
+    for (int i = 0; i < 10000; i++)
+    {
+        largeNums.push_back(i);
+    }
+    largeNums.push_back(1); // This will pair with nums[1] = 1 to make target = 2
+    int target = 2;
+
+    auto startTime = chrono::high_resolution_clock::now();
+    vector<int> result = solution.twoSum(largeNums, target);
+    auto endTime = chrono::high_resolution_clock::now();
+
+    auto duration = chrono::duration_cast<chrono::microseconds>(endTime - startTime);
+    double executionTimeMs = duration.count() / 1000.0; // Convert to milliseconds
+    double executionTimeSec = executionTimeMs / 1000.0; // Convert to seconds
+
+    cout << "⏱️  Execution time: " << fixed << setprecision(4) << executionTimeSec << " seconds (" << executionTimeMs << " ms)" << endl;
+    assert(executionTimeMs < 1000.0); // Should be less than 1 second (1000ms)
+
+    vector<int> expected = {0, 2};
+    assert(areEqual(result, expected));
+
+    cout << "✅ Performance tests passed!" << endl;
+}
+
 int main()
 {
     runTests();
+    runPerformanceTests();
     return 0;
 }
